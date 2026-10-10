@@ -1,0 +1,14 @@
+{
+  "name": "css-art",
+  "private": true,
+  "description": "Development tooling only. Nothing here ships inside a piece.",
+  "scripts": {
+    "lint:css": "stylelint \"pieces/**/*.css\"",
+    "lint:python": "pylint tools",
+    "lint": "npm run lint:css && npm run lint:python"
+  },
+  "devDependencies": {
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard": "^36.0.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "selector-class-pattern": [
+      "^[a-z]{3,}(-[a-z]{3,})*$",
+      { "message": "Class names are whole lowercase words joined by hyphens, each at least three letters (for example hill-green, not hg or shape-7)." }
+    ],
+    "custom-property-pattern": [
+      "^[a-z]{3,}(-[a-z]{3,})*$",
+      { "message": "Custom property names are whole lowercase words joined by hyphens, each at least three letters." }
+    ],
+    "keyframes-name-pattern": [
+      "^[a-z]{3,}(-[a-z]{3,})*$",
+      { "message": "Animation names are whole lowercase words joined by hyphens, each at least three letters." }
+    ],
+    "selector-max-id": 0
+  }
+}

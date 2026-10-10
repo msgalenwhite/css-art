@@ -1,0 +1,4 @@
+pylint>=3
+playwright
+pillow
+numpy
