@@ -42,6 +42,12 @@ The command prints one line of JSON and writes four files into the piece's
 
 - Animation is frozen during the screenshot because the tool requests
   reduced motion. A piece must look like its original in that state.
-- Do not change `COLOR_TOLERANCE` in `tools/compare.py` to improve a
-  score. Ask the owner first.
-- Commit the `compare/` folder with the change that produced it.
+- Do not change `COLOR_TOLERANCE` in `tools/compare.py`, or the match
+  floor in `tools/check_pieces.py`, to improve a score or pass a check.
+  Ask the owner first.
+- Commit the `compare/` folder with the change that produced it. The
+  piece checker compares each piece against its saved `score.json`, so a
+  piece that changes without a fresh `compare/` fails with "the piece
+  changed, so run python3 tools/compare.py on it".
+- When the checker reports that the score drifted, do not just regenerate
+  and commit. Regenerate, open `compare.png`, and find out why it moved.
