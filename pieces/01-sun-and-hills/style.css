@@ -1,0 +1,66 @@
+/*
+ * Sun and Hills — piece 01
+ *
+ * Every shape is one div turned into an ellipse with border-radius: 50%.
+ * All sizes are percentages of the square scene, so the piece scales to
+ * any width. Numbers come from breakdown.json (measured from original.webp).
+ *
+ * How to read a shape: its centre is (left + width / 2, top + height / 2),
+ * and width / height are twice the ellipse radii.
+ */
+
+:root {
+  /* Palette: the median colour of each region in the original. */
+  --sky: #74c6f3;
+  --sun: #f8bab0;
+  --hill-green: #94deba;
+  --hill-lavender: #c2a1e3;
+}
+
+body {
+  margin: 0;
+}
+
+.scene {
+  position: relative;
+  width: min(100vw, 100vh);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  overflow: hidden; /* the hills extend below the frame; crop them */
+  background: var(--sky);
+}
+
+.scene > * {
+  position: absolute;
+  border-radius: 50%;
+}
+
+/* A true circle centred on the scene: centre (50, 50), radius 18.8. */
+.sun {
+  left: 31.2%;
+  top: 31.2%;
+  width: 37.6%;
+  height: 37.6%;
+  background: var(--sun);
+}
+
+/* Centre (33.7, 97.2), radii 34.3 x 43.1, leaning 2.8deg clockwise. */
+.hill-green {
+  left: -0.6%;
+  top: 54.1%;
+  width: 68.6%;
+  height: 86.2%;
+  background: var(--hill-green);
+  transform: rotate(2.8deg);
+}
+
+/* Centre (66, 112.1), radii 35.2 x 51.6, leaning 10.1deg clockwise.
+   Comes last in the HTML so it paints in front of the green hill. */
+.hill-lavender {
+  left: 30.8%;
+  top: 60.5%;
+  width: 70.4%;
+  height: 103.2%;
+  background: var(--hill-lavender);
+  transform: rotate(10.1deg);
+}
