@@ -94,5 +94,5 @@
     "Each region is flattened to one color: the median of its pixels.",
     "Shapes partly hidden behind others are completed from the part of their outline that is visible."
   ],
-  "redraw_match_percent": 99.88
+  "redraw_match_percent": 99.84
 }

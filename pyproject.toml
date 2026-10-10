@@ -4,3 +4,5 @@
 
 [tool.yapf]
 based_on_style = "google"
+[tool.pytest.ini_options]
+testpaths = ["tests"]

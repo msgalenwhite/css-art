@@ -35,7 +35,16 @@ This renders the piece in headless Chromium at the original's size and writes `c
 python3 tools/check_pieces.py
 ```
 
-This opens every piece in headless Chromium and fails if a piece uses a banned element, if its elements do not match the shapes in `breakdown.json` in order, color, position, size, and rotation, or if anything still moves when reduced motion is requested. It runs on every push and pull request.
+This opens every piece in headless Chromium and fails if:
+
+- the page is not plain HTML and CSS (banned elements, inline styles, event handlers, images, gradients, generated content),
+- its elements do not match the shapes in `breakdown.json` in order, color, position, size, rotation, and corner rounding,
+- anything other than `transform` and `opacity` is animated, or anything still moves when reduced motion is requested,
+- the piece matches its original on less than 98% of pixels, or its match score has drifted from the one saved in `compare/score.json`.
+
+The last check looks at pixels, so it also catches visual changes the others have no rule for.
+
+The checker has its own tests (`python3 -m pytest`). Each one breaks a copy of piece 01 in a specific way and confirms the checker reports it. Both run on every push and pull request.
 
 ## Code Quality & Standards
 

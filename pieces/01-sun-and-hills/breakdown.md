@@ -31,4 +31,4 @@ Canvas: 1600 x 1600 pixels. Every position and size is a percentage of the canva
 
 ## Accuracy
 
-Redrawing the image from these shapes gives the right color on 99.88% of the original's flat-colored pixels. The blended pixels along edges are not scored. See `breakdown-preview.png` (original on the left, redraw on the right).
+Redrawing the image from these shapes gives the right color on 99.84% of the pixels in the original. A soft edge counts as right when it blends the colors that meet there. See `breakdown-preview.png` (original on the left, redraw on the right).

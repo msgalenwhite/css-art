@@ -92,15 +92,15 @@ def draw_comparison_sheet(panels: list[Image.Image]) -> Image.Image:
     return sheet
 
 
-def compare_piece(piece_folder: Path) -> dict:
-    """Render the piece, compare it to its original, and save the results."""
-    output_folder = piece_folder / "compare"
-    output_folder.mkdir(exist_ok=True)
+def score_piece(piece_folder: Path, render_path: Path):
+    """Render the piece and score it against its original.
 
+    Returns the score, plus the three things needed to draw the comparison
+    pictures: the original, the render, and which pixels are mismatched.
+    Writes only the render, to render_path.
+    """
     original_image = Image.open(
         find_original_image(piece_folder)).convert("RGB")
-
-    render_path = output_folder / "render.png"
     render_piece(piece_folder, original_image.width, render_path)
     rendered_image = Image.open(render_path).convert("RGB").resize(
         original_image.size)
@@ -108,17 +108,26 @@ def compare_piece(piece_folder: Path) -> dict:
     color_distance = measure_color_distance(original_image, rendered_image)
     pixel_is_mismatched = color_distance > COLOR_TOLERANCE
     mismatched_fraction = pixel_is_mismatched.mean()
-
-    diff_image = draw_diff_image(rendered_image, pixel_is_mismatched)
-    diff_image.save(output_folder / "diff.png")
-    draw_comparison_sheet([original_image, rendered_image,
-                           diff_image]).save(output_folder / "compare.png")
-
     score = {
         "match_percent": round(100 * (1 - mismatched_fraction), 2),
         "mean_color_distance": round(float(color_distance.mean()), 2),
         "color_tolerance": COLOR_TOLERANCE,
     }
+    return score, original_image, rendered_image, pixel_is_mismatched
+
+
+def compare_piece(piece_folder: Path) -> dict:
+    """Score the piece and save the score and comparison pictures."""
+    output_folder = piece_folder / "compare"
+    output_folder.mkdir(exist_ok=True)
+
+    score, original_image, rendered_image, pixel_is_mismatched = score_piece(
+        piece_folder, output_folder / "render.png")
+
+    diff_image = draw_diff_image(rendered_image, pixel_is_mismatched)
+    diff_image.save(output_folder / "diff.png")
+    draw_comparison_sheet([original_image, rendered_image,
+                           diff_image]).save(output_folder / "compare.png")
     (output_folder /
      "score.json").write_text(json.dumps(score, indent=2) + "\n")
     return score

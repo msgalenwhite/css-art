@@ -30,8 +30,8 @@ jobs:
         with:
           python-version: "3.13"
       - run: pip install -r requirements-dev.txt
-      - run: pylint tools
-      - run: yapf --diff --recursive tools
+      - run: pylint tools tests
+      - run: yapf --diff --recursive tools tests
 
   pieces:
     name: Pieces match their breakdowns and follow the rules
@@ -44,3 +44,6 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: playwright install --with-deps chromium
       - run: python3 tools/check_pieces.py
+      # The checker is only worth trusting if it rejects broken pieces, so
+      # its own tests run here too.
+      - run: python3 -m pytest
