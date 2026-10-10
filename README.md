@@ -7,7 +7,8 @@ Each piece lives in `pieces/<number>-<name>/`:
 | File | What it is |
 |---|---|
 | `original.webp` | The source image |
-| `breakdown.md` / `breakdown.json` | Colors, shapes, and layer order measured from the original |
+| `breakdown.md` / `breakdown.json` | Colors, shapes, and layer order, measured from the original by the [decompose-image skill](https://github.com/msgalenwhite/image-decomposition-skill) |
+| `breakdown-preview.png` | The original beside a redraw made from the breakdown |
 | `index.html` / `style.css` | The CSS rebuild |
 | `compare/` | Original vs. render, a difference map, and a match score |
 
@@ -15,7 +16,7 @@ Each piece lives in `pieces/<number>-<name>/`:
 
 | Piece | Match to original |
 |---|---|
-| [01 Sun and Hills](pieces/01-sun-and-hills/) | 99.39% |
+| [01 Sun and Hills](pieces/01-sun-and-hills/) | 99.38% |
 
 Piece 01 is animated: the sun sets behind the hills and rises again. It holds still for anyone whose device asks for reduced motion.
 
@@ -27,6 +28,14 @@ python3 tools/compare.py pieces/01-sun-and-hills
 ```
 
 This renders the piece in headless Chromium at the original's size and writes `compare/compare.png` and `compare/score.json`.
+
+## Checking a piece against its breakdown
+
+```
+python3 tools/check_pieces.py
+```
+
+This opens every piece in headless Chromium and fails if a piece uses a banned element, if its elements do not match the shapes in `breakdown.json` in order, color, position, size, and rotation, or if anything still moves when reduced motion is requested. It runs on every push and pull request.
 
 ## Code Quality & Standards
 
@@ -47,7 +56,7 @@ pip install -r requirements-dev.txt
 npm run lint
 ```
 
-The same checks run on every push and pull request (`.github/workflows/lint.yml`).
+The same checks run on every push and pull request (`.github/workflows/lint.yml`), together with the piece checker described above.
 
 ### Where the rules come from
 

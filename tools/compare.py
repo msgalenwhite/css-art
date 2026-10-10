@@ -6,7 +6,7 @@ Usage:
 What it does:
     1. Renders the piece's index.html in headless Chromium at the original
        image's pixel size.
-    2. Measures how far each rendered pixel's colour is from the original's.
+    2. Measures how far each rendered pixel's color is from the original's.
     3. Writes four files into the piece's compare/ folder:
          render.png   the CSS piece as the browser drew it
          diff.png     the render, faded, with mismatched pixels in red
@@ -14,9 +14,9 @@ What it does:
          score.json   the numbers printed at the end
 
 How a pixel is judged:
-    Colour distance is the straight-line distance between two RGB colours
+    Color distance is the straight-line distance between two RGB colors
     (0 = identical, about 441 = black versus white). A pixel "matches" when
-    that distance is at most COLOUR_TOLERANCE.
+    that distance is at most COLOR_TOLERANCE.
 """
 
 import json
@@ -28,13 +28,13 @@ from PIL import Image
 from playwright.sync_api import sync_playwright
 
 # Large enough to ignore compression noise and soft anti-aliased edges,
-# small enough to catch a wrong colour or a misplaced shape.
-COLOUR_TOLERANCE = 24
+# small enough to catch a wrong color or a misplaced shape.
+COLOR_TOLERANCE = 24
 
-MISMATCH_HIGHLIGHT_COLOUR = (220, 30, 60)
+MISMATCH_HIGHLIGHT_COLOR = (220, 30, 60)
 
 # The diff image shows the render washed out towards white so the red
-# mismatch pixels stand out. 0.35 keeps 35% of the render's colour.
+# mismatch pixels stand out. 0.35 keeps 35% of the render's color.
 DIFF_RENDER_OPACITY = 0.35
 
 COMPARISON_SHEET_PANEL_SIZE = 600
@@ -62,9 +62,9 @@ def find_original_image(piece_folder: Path) -> Path:
     return next(piece_folder.glob("original.*"))
 
 
-def measure_colour_distance(original_image: Image.Image,
-                            rendered_image: Image.Image) -> numpy.ndarray:
-    """Return a grid holding the colour distance at every pixel."""
+def measure_color_distance(original_image: Image.Image,
+                           rendered_image: Image.Image) -> numpy.ndarray:
+    """Return a grid holding the color distance at every pixel."""
     original_pixels = numpy.asarray(original_image, dtype=float)
     rendered_pixels = numpy.asarray(rendered_image, dtype=float)
     squared_channel_differences = (original_pixels - rendered_pixels)**2
@@ -78,7 +78,7 @@ def draw_diff_image(rendered_image: Image.Image,
     white = 255
     faded_pixels = (rendered_pixels * DIFF_RENDER_OPACITY + white *
                     (1 - DIFF_RENDER_OPACITY)).astype(numpy.uint8)
-    faded_pixels[pixel_is_mismatched] = MISMATCH_HIGHLIGHT_COLOUR
+    faded_pixels[pixel_is_mismatched] = MISMATCH_HIGHLIGHT_COLOR
     return Image.fromarray(faded_pixels)
 
 
@@ -105,8 +105,8 @@ def compare_piece(piece_folder: Path) -> dict:
     rendered_image = Image.open(render_path).convert("RGB").resize(
         original_image.size)
 
-    colour_distance = measure_colour_distance(original_image, rendered_image)
-    pixel_is_mismatched = colour_distance > COLOUR_TOLERANCE
+    color_distance = measure_color_distance(original_image, rendered_image)
+    pixel_is_mismatched = color_distance > COLOR_TOLERANCE
     mismatched_fraction = pixel_is_mismatched.mean()
 
     diff_image = draw_diff_image(rendered_image, pixel_is_mismatched)
@@ -116,8 +116,8 @@ def compare_piece(piece_folder: Path) -> dict:
 
     score = {
         "match_percent": round(100 * (1 - mismatched_fraction), 2),
-        "mean_colour_distance": round(float(colour_distance.mean()), 2),
-        "colour_tolerance": COLOUR_TOLERANCE,
+        "mean_color_distance": round(float(color_distance.mean()), 2),
+        "color_tolerance": COLOR_TOLERANCE,
     }
     (output_folder /
      "score.json").write_text(json.dumps(score, indent=2) + "\n")

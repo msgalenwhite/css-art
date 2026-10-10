@@ -6,7 +6,8 @@
     "lint:css": "stylelint \"pieces/**/*.css\"",
     "lint:html": "html-validate \"pieces/**/*.html\"",
     "lint:python": "pylint tools && yapf --diff --recursive tools",
-    "lint": "npm run lint:css && npm run lint:html && npm run lint:python"
+    "lint": "npm run lint:css && npm run lint:html && npm run lint:python",
+    "check:pieces": "python3 tools/check_pieces.py"
   },
   "devDependencies": {
     "@stylistic/stylelint-plugin": "^5.3.1",

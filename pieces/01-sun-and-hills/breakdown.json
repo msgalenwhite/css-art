@@ -1,23 +1,98 @@
 {
+  "schema_version": 2,
   "source": "original.webp",
-  "canvas": { "width_px": 1600, "height_px": 1600, "units": "percent of canvas, origin top-left" },
+  "canvas": {
+    "width_pixels": 1600,
+    "height_pixels": 1600,
+    "height_as_percent_of_width": 100.0,
+    "units": "Every position and size is a percentage of the canvas width, measured from the top-left corner."
+  },
   "palette": [
-    { "name": "sky",           "hex": "#74c6f3", "visible_percent": 54.5 },
-    { "name": "sun",           "hex": "#f8bab0", "visible_percent": 8.6 },
-    { "name": "hill-green",    "hex": "#94deba", "visible_percent": 16.8 },
-    { "name": "hill-lavender", "hex": "#c2a1e3", "visible_percent": 20.0 }
+    {
+      "name": "sky",
+      "hex": "#74c6f3",
+      "visible_percent": 54.5
+    },
+    {
+      "name": "hill-lavender",
+      "hex": "#c2a1e3",
+      "visible_percent": 20.0
+    },
+    {
+      "name": "hill-green",
+      "hex": "#94deba",
+      "visible_percent": 16.8
+    },
+    {
+      "name": "sun",
+      "hex": "#f8bab0",
+      "visible_percent": 8.7
+    }
   ],
-  "layers_back_to_front": ["sky", "sun", "hill-green", "hill-lavender"],
+  "layers_back_to_front": [
+    "sky",
+    "sun",
+    "hill-green",
+    "hill-lavender"
+  ],
   "shapes": [
-    { "name": "sky",           "primitive": "rectangle", "color": "sky", "x": 0, "y": 0, "width": 100, "height": 100 },
-    { "name": "sun",           "primitive": "circle",  "color": "sun",           "center_x": 50.0, "center_y": 50.0,  "radius_x": 18.8, "radius_y": 18.8, "rotation_deg": 0 },
-    { "name": "hill-green",    "primitive": "ellipse", "color": "hill-green",    "center_x": 33.7, "center_y": 97.2,  "radius_x": 34.3, "radius_y": 43.1, "rotation_deg": 2.8 },
-    { "name": "hill-lavender", "primitive": "ellipse", "color": "hill-lavender", "center_x": 66.0, "center_y": 112.1, "radius_x": 35.2, "radius_y": 51.6, "rotation_deg": 10.1 }
+    {
+      "name": "sky",
+      "primitive": "rectangle",
+      "color": "sky",
+      "visible_percent": 54.5,
+      "left": 0.0,
+      "top": 0.0,
+      "width": 100.0,
+      "height": 100.0,
+      "rotation_degrees": 0.0
+    },
+    {
+      "name": "sun",
+      "primitive": "circle",
+      "color": "sun",
+      "visible_percent": 8.7,
+      "center_x": 50.0,
+      "center_y": 49.6,
+      "radius_x": 18.6,
+      "radius_y": 18.6,
+      "rotation_degrees": 0.0
+    },
+    {
+      "name": "hill-green",
+      "primitive": "ellipse",
+      "color": "hill-green",
+      "visible_percent": 16.8,
+      "center_x": 33.7,
+      "center_y": 96.6,
+      "radius_x": 34.3,
+      "radius_y": 42.6,
+      "rotation_degrees": 2.8
+    },
+    {
+      "name": "hill-lavender",
+      "primitive": "ellipse",
+      "color": "hill-lavender",
+      "visible_percent": 20.0,
+      "center_x": 66.1,
+      "center_y": 111.9,
+      "radius_x": 35.3,
+      "radius_y": 51.4,
+      "rotation_degrees": 9.9
+    }
   ],
-  "groups": [ { "name": "hills", "members": ["hill-green", "hill-lavender"] } ],
+  "groups": [
+    {
+      "name": "hills",
+      "members": [
+        "hill-green",
+        "hill-lavender"
+      ]
+    }
+  ],
   "simplifications": [
-    "Each region is flattened to its median colour; the original has faint compression noise (about 2 levels per channel).",
-    "A few small teal specks inside the green hill are dropped as generation artefacts.",
-    "Hills are modelled as whole ellipses although only their top arcs are visible; the hidden parts are inferred from the fit."
-  ]
+    "Each region is flattened to one color: the median of its pixels.",
+    "Shapes partly hidden behind others are completed from the part of their outline that is visible."
+  ],
+  "redraw_match_percent": 99.88
 }

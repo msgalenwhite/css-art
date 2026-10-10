@@ -1,39 +1,34 @@
-# Breakdown: 01 Sun and Hills
+# Breakdown of original.webp
 
-Measured from `original.webp` (1600 x 1600). Positions are percentages of the canvas, measured from the top-left corner. Machine-readable copy: `breakdown.json`.
+Canvas: 1600 x 1600 pixels. Every position and size is a percentage of the canvas width, measured from the top-left corner.
 
 ## Palette
 
 | Name | Hex | Visible area |
 |---|---|---|
 | sky | `#74c6f3` | 54.5% |
-| sun | `#f8bab0` | 8.6% |
-| hill-green | `#94deba` | 16.8% |
 | hill-lavender | `#c2a1e3` | 20.0% |
+| hill-green | `#94deba` | 16.8% |
+| sun | `#f8bab0` | 8.7% |
 
 ## Shapes, back to front
 
-| Shape | Primitive | Centre (x, y) | Radii (x, y) | Rotation |
-|---|---|---|---|---|
-| sky | rectangle | fills the canvas | | |
-| sun | circle | 50, 50 | 18.8 | 0 |
-| hill-green | ellipse | 33.7, 97.2 | 34.3, 43.1 | 2.8 deg clockwise |
-| hill-lavender | ellipse | 66.0, 112.1 | 35.2, 51.6 | 10.1 deg clockwise |
+| Shape | Primitive | Color | Position and size |
+|---|---|---|---|
+| sky | rectangle | sky | left 0.0, top 0.0, width 100.0, height 100.0 |
+| sun | circle | sun | center 50.0, 49.6; radii 18.6, 18.6 |
+| hill-green | ellipse | hill-green | center 33.7, 96.6; radii 34.3, 42.6; rotated 2.8 degrees clockwise |
+| hill-lavender | ellipse | hill-lavender | center 66.1, 111.9; radii 35.3, 51.4; rotated 9.9 degrees clockwise |
 
-Both hills have centres at or below the bottom edge, so only their top arcs show.
+## Groups
+
+- hills: hill-green, hill-lavender
 
 ## Simplifications
 
-- Each region is flattened to its median colour. The original has faint compression noise.
-- A few small teal specks inside the green hill are dropped as generation artefacts.
-- The hills are modelled as whole ellipses. Only the top arcs are visible, so the hidden parts are inferred.
+- Each region is flattened to one color: the median of its pixels.
+- Shapes partly hidden behind others are completed from the part of their outline that is visible.
 
-## How it was measured
+## Accuracy
 
-1. Sampled the median colour from the middle of each region.
-2. Labelled every pixel by its nearest palette colour, leaving blended edge pixels unlabelled.
-3. Fitted an ellipse to each shape's true outline, ignoring edges where another shape covers it.
-
-## Fidelity of the CSS build
-
-`python3 tools/compare.py pieces/01-sun-and-hills` scores 99.39% of pixels within tolerance. The remaining 0.61% is a one-to-two pixel line along shape edges.
+Redrawing the image from these shapes gives the right color on 99.88% of the original's flat-colored pixels. The blended pixels along edges are not scored. See `breakdown-preview.png` (original on the left, redraw on the right).
