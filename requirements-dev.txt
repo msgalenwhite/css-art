@@ -1,4 +1,5 @@
 pylint>=3
+yapf
 playwright
 pillow
 numpy

@@ -26,20 +26,38 @@ python3 tools/compare.py pieces/01-sun-and-hills
 
 This renders the piece in headless Chromium at the original's size and writes `compare/compare.png` and `compare/score.json`.
 
-## Naming rules, checked automatically
+## Code Quality & Standards
 
-Code here is meant to be read by people and agents who have never seen it, so names are whole words: no single letters, no clipped abbreviations.
+This repository adheres to the **Google Style Guide**.
+Code formatting and static analysis are enforced via `Stylelint`, `html-validate`, `Pylint`, and `yapf` within GitHub Actions.
+
+| Code | Google guide | Enforced by | Rules live in |
+|---|---|---|---|
+| CSS in `pieces/` | [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html) | Stylelint | `.stylelintrc.json` |
+| HTML in `pieces/` | [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html) | html-validate | `.htmlvalidate.json` |
+| Python in `tools/` | [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) | Pylint (lint), yapf (format) | `.pylintrc`, `pyproject.toml` |
+
+Run everything locally:
 
 ```
 npm install
+pip install -r requirements-dev.txt
 npm run lint
 ```
 
-| Linter | Checks | Rules live in |
-|---|---|---|
-| Stylelint | Class, custom property, and animation names in every piece | `.stylelintrc.json` |
-| Pylint | Variable, argument, function, and constant names in `tools/` | `pyproject.toml` |
+The same checks run on every push and pull request (`.github/workflows/lint.yml`).
 
-Both run on every push and pull request (`.github/workflows/lint.yml`).
+### Where the rules come from
+
+- **Python:** `.pylintrc` is Google's own published Pylint configuration (Copyright 2018 Google LLC, Apache License 2.0), and yapf formats with its built-in `google` style.
+- **CSS and HTML:** Google publishes the guide but no linter configuration for it, so `.stylelintrc.json` and `.htmlvalidate.json` are this repo's translation of the guide's rules into checks. Rules a linter cannot judge, such as meaningful class names and semantic elements, are followed by hand.
+- The Google style guides are licensed [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
+### Where this repo is stricter than Google
+
+Code here is meant to be read by people and agents who have never seen it, so names are whole words. Google's rules allow single-letter names; this repo does not.
+
+- Python variable, argument, and attribute names are at least three characters, with no exemptions, and common clipped abbreviations (`img`, `tmp`, `idx`, ...) are banned. Every change to Google's file is marked `css-art:` inside `.pylintrc`.
+- CSS class, custom property, and animation names are whole lowercase words joined by hyphens, each at least three letters.
 
 Not checked automatically yet: unexplained numbers. Give every number a named constant or a comment saying where it came from.

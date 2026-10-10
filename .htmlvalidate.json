@@ -1,0 +1,11 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "doctype-style": ["error", { "style": "lowercase" }],
+    "attr-quotes": ["error", { "style": "double", "unquoted": false }],
+    "element-case": ["error", { "style": "lowercase" }],
+    "attr-case": ["error", { "style": "lowercase" }],
+    "no-trailing-whitespace": "error",
+    "no-inline-style": "error"
+  }
+}

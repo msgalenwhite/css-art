@@ -22,45 +22,45 @@ body {
 }
 
 .scene {
-  position: relative;
-  width: min(100vw, 100vh);
   aspect-ratio: 1;
+  background: var(--sky);
   margin-inline: auto;
   overflow: hidden; /* the hills extend below the frame; crop them */
-  background: var(--sky);
+  position: relative;
+  width: min(100vw, 100vh);
 }
 
 .scene > * {
-  position: absolute;
   border-radius: 50%;
+  position: absolute;
 }
 
 /* A true circle centred on the scene: centre (50, 50), radius 18.8. */
 .sun {
+  background: var(--sun);
+  height: 37.6%;
   left: 31.2%;
   top: 31.2%;
   width: 37.6%;
-  height: 37.6%;
-  background: var(--sun);
 }
 
 /* Centre (33.7, 97.2), radii 34.3 x 43.1, leaning 2.8deg clockwise. */
 .hill-green {
+  background: var(--hill-green);
+  height: 86.2%;
   left: -0.6%;
   top: 54.1%;
-  width: 68.6%;
-  height: 86.2%;
-  background: var(--hill-green);
   transform: rotate(2.8deg);
+  width: 68.6%;
 }
 
 /* Centre (66, 112.1), radii 35.2 x 51.6, leaning 10.1deg clockwise.
    Comes last in the HTML so it paints in front of the green hill. */
 .hill-lavender {
+  background: var(--hill-lavender);
+  height: 103.2%;
   left: 30.8%;
   top: 60.5%;
-  width: 70.4%;
-  height: 103.2%;
-  background: var(--hill-lavender);
   transform: rotate(10.1deg);
+  width: 70.4%;
 }

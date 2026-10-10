@@ -1,5 +1,5 @@
-# Runs the naming and style linters on every push and pull request.
-# A failure here blocks the change until the names are fixed.
+# Runs the Google style guide checks on every push and pull request.
+# A failure here blocks the change until it is fixed.
 name: Lint
 
 on:
@@ -8,8 +8,8 @@ on:
   pull_request:
 
 jobs:
-  css:
-    name: CSS naming and style
+  css-and-html:
+    name: CSS and HTML (Google HTML/CSS Style Guide)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +19,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint:css
+      - run: npm run lint:html
 
   python:
-    name: Python naming
+    name: Python (Google Python Style Guide)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,3 +31,4 @@ jobs:
           python-version: "3.13"
       - run: pip install -r requirements-dev.txt
       - run: pylint tools
+      - run: yapf --diff --recursive tools
