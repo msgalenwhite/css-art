@@ -10,9 +10,9 @@
   "layers_back_to_front": ["sky", "sun", "hill-green", "hill-lavender"],
   "shapes": [
     { "name": "sky",           "primitive": "rectangle", "color": "sky", "x": 0, "y": 0, "width": 100, "height": 100 },
-    { "name": "sun",           "primitive": "circle",  "color": "sun",           "cx": 50.0, "cy": 50.0,  "rx": 18.8, "ry": 18.8, "rotation_deg": 0 },
-    { "name": "hill-green",    "primitive": "ellipse", "color": "hill-green",    "cx": 33.7, "cy": 97.2,  "rx": 34.3, "ry": 43.1, "rotation_deg": 2.8 },
-    { "name": "hill-lavender", "primitive": "ellipse", "color": "hill-lavender", "cx": 66.0, "cy": 112.1, "rx": 35.2, "ry": 51.6, "rotation_deg": 10.1 }
+    { "name": "sun",           "primitive": "circle",  "color": "sun",           "center_x": 50.0, "center_y": 50.0,  "radius_x": 18.8, "radius_y": 18.8, "rotation_deg": 0 },
+    { "name": "hill-green",    "primitive": "ellipse", "color": "hill-green",    "center_x": 33.7, "center_y": 97.2,  "radius_x": 34.3, "radius_y": 43.1, "rotation_deg": 2.8 },
+    { "name": "hill-lavender", "primitive": "ellipse", "color": "hill-lavender", "center_x": 66.0, "center_y": 112.1, "radius_x": 35.2, "radius_y": 51.6, "rotation_deg": 10.1 }
   ],
   "groups": [ { "name": "hills", "members": ["hill-green", "hill-lavender"] } ],
   "simplifications": [

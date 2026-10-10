@@ -1,51 +1,128 @@
 """Compare a CSS piece against its original image.
 
-Usage: python3 tools/compare.py pieces/01-sun-and-hills
+Usage:
+    python3 tools/compare.py pieces/01-sun-and-hills
 
-Renders index.html in headless Chromium at the original's pixel size, then
-writes render.png, diff.png (red = mismatch) and compare.png (original |
-render | diff) into the piece's compare/ folder and prints a score.
+What it does:
+    1. Renders the piece's index.html in headless Chromium at the original
+       image's pixel size.
+    2. Measures how far each rendered pixel's colour is from the original's.
+    3. Writes four files into the piece's compare/ folder:
+         render.png   the CSS piece as the browser drew it
+         diff.png     the render, faded, with mismatched pixels in red
+         compare.png  original | render | diff, side by side
+         score.json   the numbers printed at the end
 
-A pixel "matches" when its colour is within TOLERANCE of the original.
-Colour distance is plain RGB distance (0 = identical, 441 = black vs white).
+How a pixel is judged:
+    Colour distance is the straight-line distance between two RGB colours
+    (0 = identical, about 441 = black versus white). A pixel "matches" when
+    that distance is at most COLOUR_TOLERANCE.
 """
-import json, sys
+
+import json
+import sys
 from pathlib import Path
-import numpy as np
+
+import numpy
 from PIL import Image
 from playwright.sync_api import sync_playwright
 
-TOLERANCE = 24  # ignores compression noise and soft edges, catches wrong colour/shape
+# Large enough to ignore compression noise and soft anti-aliased edges,
+# small enough to catch a wrong colour or a misplaced shape.
+COLOUR_TOLERANCE = 24
 
-def render(piece: Path, size: int, out: Path) -> None:
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page(viewport={"width": size, "height": size})
-        page.emulate_media(reduced_motion="reduce")  # freeze animation for repeatable shots
-        page.goto((piece / "index.html").resolve().as_uri())
-        page.locator(".scene").screenshot(path=str(out))
+MISMATCH_HIGHLIGHT_COLOUR = (220, 30, 60)
+
+# The diff image shows the render washed out towards white so the red
+# mismatch pixels stand out. 0.35 keeps 35% of the render's colour.
+DIFF_RENDER_OPACITY = 0.35
+
+COMPARISON_SHEET_PANEL_SIZE = 600
+
+
+def render_piece(piece_folder: Path, size_in_pixels: int, screenshot_path: Path) -> None:
+    """Screenshot the piece's .scene element at the given square size."""
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        page = browser.new_page(
+            viewport={"width": size_in_pixels, "height": size_in_pixels}
+        )
+        # Ask for reduced motion so animated pieces hold still and every
+        # run produces the same screenshot.
+        page.emulate_media(reduced_motion="reduce")
+        page.goto((piece_folder / "index.html").resolve().as_uri())
+        page.locator(".scene").screenshot(path=str(screenshot_path))
         browser.close()
 
-def main(piece: Path) -> int:
-    out = piece / "compare"; out.mkdir(exist_ok=True)
-    original = Image.open(next(piece.glob("original.*"))).convert("RGB")
-    size = original.width
-    render(piece, size, out / "render.png")
-    rendered = Image.open(out / "render.png").convert("RGB").resize(original.size)
-    a, b = np.asarray(original, float), np.asarray(rendered, float)
-    dist = np.sqrt(((a - b) ** 2).sum(-1))
-    miss = dist > TOLERANCE
-    diff = (b * 0.35 + 255 * 0.65).astype(np.uint8); diff[miss] = (220, 30, 60)
-    Image.fromarray(diff).save(out / "diff.png")
-    sheet = Image.new("RGB", (size * 3, size))
-    for i, im in enumerate((original, rendered, Image.fromarray(diff))): sheet.paste(im, (i * size, 0))
-    sheet.resize((1800, 600)).save(out / "compare.png")
-    score = {"match_percent": round(100 * (1 - miss.mean()), 2),
-             "mean_colour_distance": round(float(dist.mean()), 2),
-             "tolerance": TOLERANCE}
-    (out / "score.json").write_text(json.dumps(score, indent=2) + "\n")
-    print(json.dumps(score))
-    return 0
+
+def find_original_image(piece_folder: Path) -> Path:
+    """Return the piece's original image, whatever its file extension."""
+    return next(piece_folder.glob("original.*"))
+
+
+def measure_colour_distance(
+    original_image: Image.Image, rendered_image: Image.Image
+) -> numpy.ndarray:
+    """Return a grid holding the colour distance at every pixel."""
+    original_pixels = numpy.asarray(original_image, dtype=float)
+    rendered_pixels = numpy.asarray(rendered_image, dtype=float)
+    squared_channel_differences = (original_pixels - rendered_pixels) ** 2
+    return numpy.sqrt(squared_channel_differences.sum(axis=-1))
+
+
+def draw_diff_image(
+    rendered_image: Image.Image, pixel_is_mismatched: numpy.ndarray
+) -> Image.Image:
+    """Fade the render towards white and paint mismatched pixels red."""
+    rendered_pixels = numpy.asarray(rendered_image, dtype=float)
+    white = 255
+    faded_pixels = (
+        rendered_pixels * DIFF_RENDER_OPACITY + white * (1 - DIFF_RENDER_OPACITY)
+    ).astype(numpy.uint8)
+    faded_pixels[pixel_is_mismatched] = MISMATCH_HIGHLIGHT_COLOUR
+    return Image.fromarray(faded_pixels)
+
+
+def draw_comparison_sheet(panels: list[Image.Image]) -> Image.Image:
+    """Place the given images in one row, each scaled to the same square."""
+    panel_size = COMPARISON_SHEET_PANEL_SIZE
+    sheet = Image.new("RGB", (panel_size * len(panels), panel_size))
+    for panel_number, panel in enumerate(panels):
+        left_edge = panel_number * panel_size
+        sheet.paste(panel.resize((panel_size, panel_size)), (left_edge, 0))
+    return sheet
+
+
+def compare_piece(piece_folder: Path) -> dict:
+    """Render the piece, compare it to its original, and save the results."""
+    output_folder = piece_folder / "compare"
+    output_folder.mkdir(exist_ok=True)
+
+    original_image = Image.open(find_original_image(piece_folder)).convert("RGB")
+
+    render_path = output_folder / "render.png"
+    render_piece(piece_folder, original_image.width, render_path)
+    rendered_image = Image.open(render_path).convert("RGB").resize(original_image.size)
+
+    colour_distance = measure_colour_distance(original_image, rendered_image)
+    pixel_is_mismatched = colour_distance > COLOUR_TOLERANCE
+    mismatched_fraction = pixel_is_mismatched.mean()
+
+    diff_image = draw_diff_image(rendered_image, pixel_is_mismatched)
+    diff_image.save(output_folder / "diff.png")
+    draw_comparison_sheet([original_image, rendered_image, diff_image]).save(
+        output_folder / "compare.png"
+    )
+
+    score = {
+        "match_percent": round(100 * (1 - mismatched_fraction), 2),
+        "mean_colour_distance": round(float(colour_distance.mean()), 2),
+        "colour_tolerance": COLOUR_TOLERANCE,
+    }
+    (output_folder / "score.json").write_text(json.dumps(score, indent=2) + "\n")
+    return score
+
 
 if __name__ == "__main__":
-    sys.exit(main(Path(sys.argv[1])))
+    piece_folder_argument = Path(sys.argv[1])
+    print(json.dumps(compare_piece(piece_folder_argument)))
