@@ -7,7 +7,8 @@ Each piece lives in `pieces/<number>-<name>/`:
 | File | What it is |
 |---|---|
 | `original.webp` | The source image |
-| `breakdown.md` / `breakdown.json` | Colors, shapes, and layer order measured from the original |
+| `breakdown.md` / `breakdown.json` | Colors, shapes, and layer order, measured from the original by the [decompose-image skill](https://github.com/msgalenwhite/image-decomposition-skill) |
+| `breakdown-preview.png` | The original beside a redraw made from the breakdown |
 | `index.html` / `style.css` | The CSS rebuild |
 | `compare/` | Original vs. render, a difference map, and a match score |
 
@@ -15,7 +16,7 @@ Each piece lives in `pieces/<number>-<name>/`:
 
 | Piece | Match to original |
 |---|---|
-| [01 Sun and Hills](pieces/01-sun-and-hills/) | 99.39% |
+| [01 Sun and Hills](pieces/01-sun-and-hills/) | 99.38% |
 
 Piece 01 is animated: the sun sets behind the hills and rises again. It holds still for anyone whose device asks for reduced motion.
 
@@ -28,6 +29,26 @@ python3 tools/compare.py pieces/01-sun-and-hills
 
 This renders the piece in headless Chromium at the original's size and writes `compare/compare.png` and `compare/score.json`.
 
+## Checking a piece against its breakdown
+
+```
+python3 tools/check_pieces.py
+```
+
+This opens every piece in headless Chromium and fails if:
+
+- the page is not plain HTML and CSS (banned elements, inline styles, event handlers, images, gradients, generated content, extra files),
+- a color is written directly instead of through a `:root` custom property named after its palette entry,
+- its elements do not match the shapes in `breakdown.json` in order, color, position, size, rotation, and corner rounding, in any of four window sizes,
+- anything other than `transform` and `opacity` is animated, including in animations that only run on hover, or anything still moves when reduced motion is requested,
+- the piece matches its original on less than 98% of pixels, or its match score has drifted from the one saved in `compare/score.json`.
+
+The last check looks at pixels, so it also catches visual changes the others have no rule for.
+
+The checker is built to catch honest mistakes. It is not a security boundary: someone set on hiding a rule break from it could.
+
+The checker has its own tests (`python3 -m pytest`). Each one breaks a copy of piece 01 in a specific way and confirms the checker reports it. Both run on every pull request and on every push to `main`.
+
 ## Code Quality & Standards
 
 This repository adheres to the **Google Style Guide**.
@@ -37,7 +58,7 @@ Code formatting and static analysis are enforced via `Stylelint`, `html-validate
 |---|---|---|---|
 | CSS in `pieces/` | [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html) | Stylelint | `.stylelintrc.json` |
 | HTML in `pieces/` | [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html) | html-validate | `.htmlvalidate.json` |
-| Python in `tools/` | [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) | Pylint (lint), yapf (format) | `.pylintrc`, `pyproject.toml` |
+| Python in `tools/` and `tests/` | [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) | Pylint (lint), yapf (format) | `.pylintrc`, `pyproject.toml` |
 
 Run everything locally:
 
@@ -47,7 +68,7 @@ pip install -r requirements-dev.txt
 npm run lint
 ```
 
-The same checks run on every push and pull request (`.github/workflows/lint.yml`).
+The same checks run on every pull request and on every push to `main` (`.github/workflows/lint.yml`), together with the piece checker described above.
 
 ### Where the rules come from
 

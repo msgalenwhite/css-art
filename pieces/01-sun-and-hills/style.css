@@ -3,14 +3,18 @@
  *
  * Every shape is one div turned into an ellipse with border-radius: 50%.
  * All sizes are percentages of the square scene, so the piece scales to
- * any width. Numbers come from breakdown.json (measured from original.webp).
+ * any width. Numbers come from breakdown.json, which the decompose-image
+ * skill measured from original.webp.
  *
- * How to read a shape: its centre is (left + width / 2, top + height / 2),
- * and width / height are twice the ellipse radii.
+ * How to turn a breakdown ellipse into CSS:
+ *   left   = center_x - radius_x        width  = 2 * radius_x
+ *   top    = center_y - radius_y        height = 2 * radius_y
+ *   transform: rotate(rotation_degrees)
+ * tools/check_pieces.py fails if these numbers and breakdown.json disagree.
  */
 
 :root {
-  /* Palette: the median colour of each region in the original. */
+  /* Palette: the median color of each region in the original. */
   --sky: #74c6f3;
   --sun: #f8bab0;
   --hill-green: #94deba;
@@ -20,8 +24,8 @@
   --half-day-length: 8s;
 
   /* How far down the sun sinks, as a percentage of its own height. The sun's
-     top edge starts at 31.2% of the scene and the dip between the two hills
-     is at about 64%. Sinking 120% of the sun's 37.6% height moves the top
+     top edge starts at 31% of the scene and the dip between the two hills
+     is at about 64%. Sinking 120% of the sun's 37.2% height moves the top
      edge to about 76%, safely below that dip, so the sun is fully hidden. */
   --sun-sink-distance: 120%;
 }
@@ -44,35 +48,35 @@ body {
   position: absolute;
 }
 
-/* A true circle centred on the scene: centre (50, 50), radius 18.8. */
+/* A circle: center (50, 49.6), radius 18.6. */
 .sun {
   animation: sunset-then-sunrise var(--half-day-length) ease-in-out infinite alternate;
   background: var(--sun);
-  height: 37.6%;
-  left: 31.2%;
-  top: 31.2%;
-  width: 37.6%;
+  height: 37.2%;
+  left: 31.4%;
+  top: 31%;
+  width: 37.2%;
 }
 
-/* Centre (33.7, 97.2), radii 34.3 x 43.1, leaning 2.8deg clockwise. */
+/* Center (33.7, 96.6), radii 34.3 x 42.6, leaning 2.8deg clockwise. */
 .hill-green {
   background: var(--hill-green);
-  height: 86.2%;
+  height: 85.2%;
   left: -0.6%;
-  top: 54.1%;
+  top: 54%;
   transform: rotate(2.8deg);
   width: 68.6%;
 }
 
-/* Centre (66, 112.1), radii 35.2 x 51.6, leaning 10.1deg clockwise.
+/* Center (66.1, 111.9), radii 35.3 x 51.4, leaning 9.9deg clockwise.
    Comes last in the HTML so it paints in front of the green hill. */
 .hill-lavender {
   background: var(--hill-lavender);
-  height: 103.2%;
+  height: 102.8%;
   left: 30.8%;
   top: 60.5%;
-  transform: rotate(10.1deg);
-  width: 70.4%;
+  transform: rotate(9.9deg);
+  width: 70.6%;
 }
 
 /*
