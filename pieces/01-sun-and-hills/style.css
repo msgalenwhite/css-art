@@ -15,6 +15,15 @@
   --sun: #f8bab0;
   --hill-green: #94deba;
   --hill-lavender: #c2a1e3;
+
+  /* How long the sun takes to travel one way: down at dusk or up at dawn. */
+  --half-day-length: 8s;
+
+  /* How far down the sun sinks, as a percentage of its own height. The sun's
+     top edge starts at 31.2% of the scene and the dip between the two hills
+     is at about 64%. Sinking 120% of the sun's 37.6% height moves the top
+     edge to about 76%, safely below that dip, so the sun is fully hidden. */
+  --sun-sink-distance: 120%;
 }
 
 body {
@@ -37,6 +46,7 @@ body {
 
 /* A true circle centred on the scene: centre (50, 50), radius 18.8. */
 .sun {
+  animation: sunset-then-sunrise var(--half-day-length) ease-in-out infinite alternate;
   background: var(--sun);
   height: 37.6%;
   left: 31.2%;
@@ -63,4 +73,53 @@ body {
   top: 60.5%;
   transform: rotate(10.1deg);
   width: 70.4%;
+}
+
+/*
+ * Animation: the sun sets behind the hills, then rises again.
+ *
+ * How it works, for anyone meeting CSS animation for the first time:
+ *
+ * - @keyframes describes the journey as a list of stops. Percentages are
+ *   points in time, so "15%" means 15% of the way through one trip.
+ * - The .sun rule above plays the journey with the "animation" property:
+ *   "infinite" repeats it forever, and "alternate" plays every second trip
+ *   backwards. One set of keyframes therefore gives both sunset and sunrise.
+ * - "ease-in-out" starts and ends each trip slowly, like a real object
+ *   gathering and losing speed.
+ * - The sun holds still for the first and last 15% of each trip, so it
+ *   pauses in the sky and pauses again while hidden.
+ *
+ * Why "transform" and not "top": changing "top" makes the browser lay the
+ * page out again on every frame. "transform" only slides the already-drawn
+ * sun, which the graphics card can do on its own, so the motion stays smooth.
+ *
+ * Why no extra code hides the sun: the hills come later in the HTML, so they
+ * are painted in front. The sun simply slides down behind them.
+ *
+ * A percentage inside translateY() is measured against the element's own
+ * height, not the scene's. See --sun-sink-distance for the arithmetic.
+ */
+@keyframes sunset-then-sunrise {
+  0%,
+  15% {
+    transform: translateY(0);
+  }
+
+  85%,
+  100% {
+    transform: translateY(var(--sun-sink-distance));
+  }
+}
+
+/*
+ * Some people get dizzy or distracted by motion and ask their device to
+ * reduce it. For them the sun stays where it is in the original image.
+ * The comparison tool also asks for reduced motion, which is how it gets
+ * the same still picture on every run.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .sun {
+    animation: none;
+  }
 }

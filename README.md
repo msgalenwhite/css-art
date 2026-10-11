@@ -17,6 +17,8 @@ Each piece lives in `pieces/<number>-<name>/`:
 |---|---|
 | [01 Sun and Hills](pieces/01-sun-and-hills/) | 99.39% |
 
+Piece 01 is animated: the sun sets behind the hills and rises again. It holds still for anyone whose device asks for reduced motion.
+
 ## Comparing a piece to its original
 
 ```
